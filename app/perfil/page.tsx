@@ -8,6 +8,7 @@ import BottomNav from '@/components/BottomNav'
 import { getUser, clearUser } from '@/lib/auth'
 import { getProgressStats, getStreak } from '@/lib/api'
 import type { User, ProgressStats, Streak } from '@/lib/types'
+import ReadingCalendar from '@/components/ReadingCalendar'
 
 export default function PerfilPage() {
   const router = useRouter()
@@ -105,6 +106,9 @@ export default function PerfilPage() {
             </div>
           </div>
         )}
+
+        {/* Calendário de leitura */}
+        <ReadingCalendar token={user.token} />
 
         {/* Progresso */}
         {stats && (

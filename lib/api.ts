@@ -115,6 +115,15 @@ export async function getFavorites(token: string): Promise<FavoriteItem[]> {
   return res.json()
 }
 
+export async function getCalendar(token: string): Promise<string[]> {
+  const res = await fetch(`${API}/api/progress/calendar.php`, {
+    headers: authHeaders(token),
+  })
+  if (!res.ok) return []
+  const data = await res.json()
+  return data.dates as string[]
+}
+
 export async function getStreak(token: string): Promise<Streak> {
   const res = await fetch(`${API}/api/progress/streak.php`, {
     headers: authHeaders(token),
