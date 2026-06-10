@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
 import { getUser, clearUser } from '@/lib/auth'
-import { getProgressStats, getStreak } from '@/lib/api'
+import { getProgressStats, getStreak, checkAchievements } from '@/lib/api'
 import type { User, ProgressStats, Streak } from '@/lib/types'
 import ReadingCalendar from '@/components/ReadingCalendar'
 
@@ -17,14 +17,28 @@ export default function PerfilPage() {
   const [streak, setStreak] = useState<Streak | null>(null)
   const [notif,  setNotif]  = useState(false)
 
+  const fetchData = (token: string) => {
+    getProgressStats(token).then(setStats).catch(() => {})
+    getStreak(token).then(setStreak).catch(() => {})
+    checkAchievements(token).catch(() => {})   // garante conquistas atualizadas
+  }
+
   useEffect(() => {
     const u = getUser()
     setUser(u)
     setNotif(localStorage.getItem('notif_enabled') === '1')
-    if (u) {
-      getProgressStats(u.token).then(setStats).catch(() => {})
-      getStreak(u.token).then(setStreak).catch(() => {})
+    if (u) fetchData(u.token)
+
+    // Recarrega dados ao voltar para a aba/página (resolve cache do router)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        const fresh = getUser()
+        if (fresh) fetchData(fresh.token)
+      }
     }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleLogout = () => {

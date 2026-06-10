@@ -60,9 +60,17 @@ export default function ReadingCalendar({ token }: Props) {
   const readSet = new Set(dates)
   const now     = new Date()
 
-  // Últimos 3 meses incluindo o atual
-  const months = Array.from({ length: 3 }, (_, i) => {
-    const d = new Date(now.getFullYear(), now.getMonth() - (2 - i), 1)
+  // Janela dinâmica: do mês da primeira leitura até o atual, mínimo 3 e máximo 12 meses
+  const firstDate  = dates.length ? new Date(dates[0]) : now
+  const firstMonth = new Date(firstDate.getFullYear(), firstDate.getMonth(), 1)
+  const currMonth  = new Date(now.getFullYear(), now.getMonth(), 1)
+  const diffMonths = Math.max(
+    2,
+    Math.min(11, (currMonth.getFullYear() - firstMonth.getFullYear()) * 12 +
+      (currMonth.getMonth() - firstMonth.getMonth()))
+  )
+  const months = Array.from({ length: diffMonths + 1 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (diffMonths - i), 1)
     return { year: d.getFullYear(), month: d.getMonth() }
   })
 
