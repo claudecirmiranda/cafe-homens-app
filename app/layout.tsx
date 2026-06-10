@@ -41,10 +41,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           dangerouslySetInnerHTML={{
             __html: `
+              window.__pwaInstallEvent = null;
+              window.addEventListener('beforeinstallprompt', function(e) {
+                e.preventDefault();
+                window.__pwaInstallEvent = e;
+              });
               if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                  navigator.serviceWorker.register('/sw.js')
-                })
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js');
+                });
               }
             `,
           }}

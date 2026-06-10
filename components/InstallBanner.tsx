@@ -7,30 +7,49 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
 }
 
+declare global {
+  interface Window {
+    __pwaInstallEvent: BeforeInstallPromptEvent | null
+  }
+}
+
 export default function InstallBanner() {
   const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [isIOS, setIsIOS] = useState(false)
   const [show, setShow] = useState(false)
 
   useEffect(() => {
-    // Já instalado como PWA — não mostrar
-    //if (window.matchMedia('(display-mode: standalone)').matches) return
-    // Já dispensou hoje
-    //if (sessionStorage.getItem('install-dismissed')) return
+    // Já instalado como PWA
+    if (window.matchMedia('(display-mode: standalone)').matches) return
 
     const ua = navigator.userAgent
-    const ios = /ipad|iphone|ipod/i.test(ua) && !(window as unknown as { MSStream: unknown }).MSStream
-    const standaloneSafari = 'standalone' in navigator && (navigator as { standalone?: boolean }).standalone === false
 
-    if (ios && standaloneSafari) {
-      setIsIOS(true)
+    // Detecção iOS (Safari e Chrome/iOS)
+    const ios = /ipad|iphone|ipod/i.test(ua)
+    if (ios) {
+      // Só mostra se ainda não está instalado (navigator.standalone = false no iOS)
+      const alreadyInstalled = 'standalone' in navigator && (navigator as unknown as { standalone: boolean }).standalone === true
+      if (!alreadyInstalled) {
+        setIsIOS(true)
+        setShow(true)
+      }
+      return
+    }
+
+    // Android/Desktop: o evento pode ter sido capturado antes do React montar
+    const captured = window.__pwaInstallEvent
+    if (captured) {
+      setPrompt(captured)
       setShow(true)
       return
     }
 
+    // Ou ainda não disparou — aguarda
     const handler = (e: Event) => {
       e.preventDefault()
-      setPrompt(e as BeforeInstallPromptEvent)
+      const evt = e as BeforeInstallPromptEvent
+      window.__pwaInstallEvent = evt
+      setPrompt(evt)
       setShow(true)
     }
     window.addEventListener('beforeinstallprompt', handler)
@@ -41,12 +60,14 @@ export default function InstallBanner() {
     if (!prompt) return
     await prompt.prompt()
     const { outcome } = await prompt.userChoice
-    if (outcome === 'accepted') setShow(false)
+    if (outcome === 'accepted') {
+      setShow(false)
+      window.__pwaInstallEvent = null
+    }
     setPrompt(null)
   }
 
   const handleDismiss = () => {
-    sessionStorage.setItem('install-dismissed', '1')
     setShow(false)
   }
 
@@ -54,7 +75,7 @@ export default function InstallBanner() {
 
   return (
     <div className="fixed bottom-20 left-3 right-3 z-50 bg-brand-dark text-brand-beige
-                    rounded-2xl p-4 shadow-2xl flex items-start gap-3 animate-fade-in">
+                    rounded-2xl p-4 shadow-2xl flex items-start gap-3">
       <div className="flex-1 min-w-0">
         <p className="font-serif text-sm font-bold mb-1">Instalar o App</p>
         {isIOS ? (
