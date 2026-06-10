@@ -22,6 +22,8 @@ export default function InstallBanner() {
     // Já instalado como PWA
     if (window.matchMedia('(display-mode: standalone)').matches) return
 
+    if (sessionStorage.getItem('install-dismissed')) return
+
     const ua = navigator.userAgent
 
     // Detecção iOS (Safari e Chrome/iOS)

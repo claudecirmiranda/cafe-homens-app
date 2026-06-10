@@ -35,5 +35,5 @@ next-env.d.ts
 .vercel
 
 # Temp favicon generator output (not served by Next.js)
-icons/
-favicon.ico
+# icons/
+# favicon.ico

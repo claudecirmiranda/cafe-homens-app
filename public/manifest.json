@@ -2,7 +2,7 @@
   "id": "/",
   "name": "Café com Homens de Deus",
   "short_name": "Café Homens",
-  "description": "Devocional diário para homens que buscam a Deus",
+  "description": "Devocional diário para homens que buscam a Deus com sabedoria e coragem.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -29,6 +29,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon",
+      "purpose": "any"
     }
   ]
 }
