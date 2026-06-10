@@ -14,9 +14,9 @@ export default function InstallBanner() {
 
   useEffect(() => {
     // Já instalado como PWA — não mostrar
-    if (window.matchMedia('(display-mode: standalone)').matches) return
+    //if (window.matchMedia('(display-mode: standalone)').matches) return
     // Já dispensou hoje
-    if (sessionStorage.getItem('install-dismissed')) return
+    //if (sessionStorage.getItem('install-dismissed')) return
 
     const ua = navigator.userAgent
     const ios = /ipad|iphone|ipod/i.test(ua) && !(window as unknown as { MSStream: unknown }).MSStream
