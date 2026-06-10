@@ -6,14 +6,15 @@ import Link from 'next/link'
 import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
 import { getUser, clearUser } from '@/lib/auth'
-import { getProgressStats } from '@/lib/api'
-import type { User, ProgressStats } from '@/lib/types'
+import { getProgressStats, getStreak } from '@/lib/api'
+import type { User, ProgressStats, Streak } from '@/lib/types'
 
 export default function PerfilPage() {
   const router = useRouter()
-  const [user,  setUser]  = useState<User | null>(null)
-  const [stats, setStats] = useState<ProgressStats | null>(null)
-  const [notif, setNotif] = useState(false)
+  const [user,   setUser]   = useState<User | null>(null)
+  const [stats,  setStats]  = useState<ProgressStats | null>(null)
+  const [streak, setStreak] = useState<Streak | null>(null)
+  const [notif,  setNotif]  = useState(false)
 
   useEffect(() => {
     const u = getUser()
@@ -21,6 +22,7 @@ export default function PerfilPage() {
     setNotif(localStorage.getItem('notif_enabled') === '1')
     if (u) {
       getProgressStats(u.token).then(setStats).catch(() => {})
+      getStreak(u.token).then(setStreak).catch(() => {})
     }
   }, [])
 
@@ -81,6 +83,29 @@ export default function PerfilPage() {
           <p className="font-sans text-brand-muted text-sm">{user.email}</p>
         </div>
 
+        {/* Streak */}
+        {streak !== null && (
+          <div className="bg-brand-dark rounded-xl p-5 shadow-sm mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-4xl">🔥</span>
+              <div>
+                <p className="font-serif text-3xl font-bold text-brand-beige leading-none">
+                  {streak.current}
+                </p>
+                <p className="font-sans text-xs text-brand-ocre mt-0.5">
+                  {streak.current === 1 ? 'dia seguido' : 'dias seguidos'}
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="font-sans text-xs text-brand-ocre">Recorde</p>
+              <p className="font-serif text-xl font-bold text-brand-mustard">{streak.longest}</p>
+              <p className="font-sans text-xs text-brand-ocre mt-2">Total lidos</p>
+              <p className="font-serif text-xl font-bold text-brand-beige">{streak.total}</p>
+            </div>
+          </div>
+        )}
+
         {/* Progresso */}
         {stats && (
           <div className="bg-white rounded-xl p-5 shadow-sm mb-4">
@@ -112,6 +137,22 @@ export default function PerfilPage() {
 
         {/* Funcionalidades */}
         <ul className="flex flex-col gap-3 mb-6">
+          <li>
+            <Link href="/perfil/conquistas"
+              className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-4">
+                <span className="text-2xl">🏅</span>
+                <div>
+                  <p className="font-sans text-sm font-semibold text-brand-dark">Conquistas</p>
+                  <p className="font-sans text-xs text-brand-muted">Seus marcos desbloqueados</p>
+                </div>
+              </div>
+              <svg className="w-4 h-4 text-brand-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </li>
+
           <li>
             <Link href="/perfil/favoritos"
               className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm">

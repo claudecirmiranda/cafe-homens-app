@@ -69,3 +69,18 @@ export interface FavoriteItem {
   bible_reference: string
   daily_word: string
 }
+
+export interface Streak {
+  current: number
+  longest: number
+  total: number
+}
+
+export interface Achievement {
+  id: string
+  icon: string
+  title: string
+  desc: string
+  unlocked: boolean
+  unlocked_at: string | null
+}

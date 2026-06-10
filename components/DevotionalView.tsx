@@ -1,15 +1,17 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import type { Devotional } from '@/lib/types'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Achievement, Devotional } from '@/lib/types'
 import { formatDatePt } from '@/lib/utils'
 import ShareButton from './ShareButton'
+import AchievementToast from './AchievementToast'
 import { getUser } from '@/lib/auth'
 import {
   getNote, saveNote,
   toggleFavorite,
   getFavorites,
   markDevotionalRead,
+  checkAchievements,
 } from '@/lib/api'
 
 interface SectionProps {
@@ -30,23 +32,29 @@ function Section({ title, children, accent }: SectionProps) {
 }
 
 export default function DevotionalView({ devotional: d }: { devotional: Devotional }) {
-  const [token,      setToken]      = useState<string | null>(null)
-  const [favorited,  setFavorited]  = useState(false)
-  const [favLoading, setFavLoading] = useState(false)
-  const [note,       setNote]       = useState('')
-  const [noteSaved,  setNoteSaved]  = useState(false)
-  const saveTimer                   = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [token,        setToken]        = useState<string | null>(null)
+  const [favorited,    setFavorited]    = useState(false)
+  const [favLoading,   setFavLoading]   = useState(false)
+  const [note,         setNote]         = useState('')
+  const [noteSaved,    setNoteSaved]    = useState(false)
+  const [newAchs,      setNewAchs]      = useState<Achievement[]>([])
+  const saveTimer                       = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const user = getUser()
     if (!user) return
     setToken(user.token)
-    markDevotionalRead(user.token, d.id).catch(() => {})
+    markDevotionalRead(user.token, d.id)
+      .then(() => checkAchievements(user.token))
+      .then((achs) => { if (achs.length) setNewAchs(achs) })
+      .catch(() => {})
     getNote(user.token, d.id).then((n) => setNote(n.content)).catch(() => {})
     getFavorites(user.token)
       .then((list) => setFavorited(list.some((f) => f.id === d.id)))
       .catch(() => {})
   }, [d.id])
+
+  const clearAchs = useCallback(() => setNewAchs([]), [])
 
   const handleFavorite = async () => {
     if (!token || favLoading) return
@@ -71,6 +79,8 @@ export default function DevotionalView({ devotional: d }: { devotional: Devotion
   }
 
   return (
+    <>
+    <AchievementToast achievements={newAchs} onDone={clearAchs} />
     <article className="flex flex-col gap-4 px-4 py-5">
 
       {/* Cabeçalho */}
@@ -245,5 +255,6 @@ export default function DevotionalView({ devotional: d }: { devotional: Devotion
       </div>
 
     </article>
+    </>
   )
 }

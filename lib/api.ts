@@ -1,4 +1,4 @@
-import type { Devotional, DevotionalListResponse, User, ProgressStats, DevotionalNote, FavoriteItem } from './types'
+import type { Devotional, DevotionalListResponse, User, ProgressStats, DevotionalNote, FavoriteItem, Streak, Achievement } from './types'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://cafecomhomensdedeus.com.br'
 
@@ -113,4 +113,30 @@ export async function getFavorites(token: string): Promise<FavoriteItem[]> {
   })
   if (!res.ok) throw new Error('Erro ao buscar favoritos')
   return res.json()
+}
+
+export async function getStreak(token: string): Promise<Streak> {
+  const res = await fetch(`${API}/api/progress/streak.php`, {
+    headers: authHeaders(token),
+  })
+  if (!res.ok) throw new Error('Erro ao buscar streak')
+  return res.json()
+}
+
+export async function getAchievements(token: string): Promise<Achievement[]> {
+  const res = await fetch(`${API}/api/achievements/list.php`, {
+    headers: authHeaders(token),
+  })
+  if (!res.ok) throw new Error('Erro ao buscar conquistas')
+  return res.json()
+}
+
+export async function checkAchievements(token: string): Promise<Achievement[]> {
+  const res = await fetch(`${API}/api/achievements/check.php`, {
+    method: 'POST',
+    headers: authHeaders(token),
+  })
+  if (!res.ok) return []
+  const data = await res.json()
+  return data.unlocked as Achievement[]
 }
