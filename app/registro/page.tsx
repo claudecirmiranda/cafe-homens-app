@@ -1,10 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/Header'
-import { registerUser } from '@/lib/api'
+import GoogleSignIn from '@/components/GoogleSignIn'
+import { registerUser, googleSignIn } from '@/lib/api'
 import { saveUser } from '@/lib/auth'
 
 export default function RegistroPage() {
@@ -15,6 +16,20 @@ export default function RegistroPage() {
 
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }))
+
+  const handleGoogleToken = useCallback(async (idToken: string) => {
+    setError('')
+    setLoading(true)
+    try {
+      const user = await googleSignIn(idToken)
+      saveUser(user)
+      router.push('/perfil')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Erro ao entrar com Google')
+    } finally {
+      setLoading(false)
+    }
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -90,6 +105,21 @@ export default function RegistroPage() {
               Entrar
             </Link>
           </p>
+        </div>
+
+        <div className="mt-8 relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-brand-ocre" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-brand-beige px-4 font-sans text-xs text-brand-muted">
+              ou continue com
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <GoogleSignIn onToken={handleGoogleToken} disabled={loading} />
         </div>
       </main>
     </>

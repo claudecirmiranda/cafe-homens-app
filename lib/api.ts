@@ -49,6 +49,17 @@ export async function loginUser(email: string, password: string): Promise<User> 
   return data as User
 }
 
+export async function googleSignIn(idToken: string): Promise<User> {
+  const res = await fetch(`${API}/api/auth/google.php`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id_token: idToken }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || 'Erro ao entrar com Google')
+  return data as User
+}
+
 function authHeaders(token: string) {
   return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
 }
