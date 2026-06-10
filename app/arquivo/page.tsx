@@ -16,13 +16,12 @@ export default async function ArquivoPage({ searchParams }: Props) {
   const data = await getDevocionalList(page)
 
   // Agrupa por mês YYYY-MM
-  const grouped: Record<string, typeof data.items> = {}
-  if (data?.items) {
-    for (const item of data.items) {
-      const month = item.date.substring(0, 7)
-      if (!grouped[month]) grouped[month] = []
-      grouped[month].push(item)
-    }
+  const items = data?.items ?? []
+  const grouped: Record<string, typeof items> = {}
+  for (const item of items) {
+    const month = item.date.substring(0, 7)
+    if (!grouped[month]) grouped[month] = []
+    grouped[month].push(item)
   }
 
   const totalPages = data?.total ? Math.ceil(data.total / 20) : 1
