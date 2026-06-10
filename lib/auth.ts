@@ -1,0 +1,25 @@
+import type { User } from './types'
+
+const KEY = 'cmdg_user'
+
+export function getUser(): User | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem(KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+export function saveUser(user: User): void {
+  localStorage.setItem(KEY, JSON.stringify(user))
+}
+
+export function clearUser(): void {
+  localStorage.removeItem(KEY)
+}
+
+export function isLoggedIn(): boolean {
+  return getUser() !== null
+}
