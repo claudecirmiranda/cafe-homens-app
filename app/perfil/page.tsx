@@ -9,13 +9,13 @@ import { getUser, clearUser } from '@/lib/auth'
 import { getProgressStats, getStreak, checkAchievements } from '@/lib/api'
 import type { User, ProgressStats, Streak } from '@/lib/types'
 import ReadingCalendar from '@/components/ReadingCalendar'
+import PushNotificationButton from '@/components/PushNotificationButton'
 
 export default function PerfilPage() {
   const router = useRouter()
   const [user,   setUser]   = useState<User | null>(null)
   const [stats,  setStats]  = useState<ProgressStats | null>(null)
   const [streak, setStreak] = useState<Streak | null>(null)
-  const [notif,  setNotif]  = useState(false)
 
   const fetchData = (token: string) => {
     getProgressStats(token).then(setStats).catch(() => {})
@@ -26,7 +26,6 @@ export default function PerfilPage() {
   useEffect(() => {
     const u = getUser()
     setUser(u)
-    setNotif(localStorage.getItem('notif_enabled') === '1')
     if (u) fetchData(u.token)
 
     // Recarrega dados ao voltar para a aba/página (resolve cache do router)
@@ -44,12 +43,6 @@ export default function PerfilPage() {
   const handleLogout = () => {
     clearUser()
     router.push('/')
-  }
-
-  const toggleNotif = () => {
-    const next = !notif
-    setNotif(next)
-    localStorage.setItem('notif_enabled', next ? '1' : '0')
   }
 
   if (!user) return (
@@ -187,24 +180,17 @@ export default function PerfilPage() {
             </Link>
           </li>
 
-          <li className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm">
-            <div className="flex items-center gap-4">
-              <span className="text-2xl">🔔</span>
-              <div>
-                <p className="font-sans text-sm font-semibold text-brand-dark">Notificações</p>
-                <p className="font-sans text-xs text-brand-muted">Devocional às 06:00</p>
+          <li className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <span className="text-2xl">🔔</span>
+                <div>
+                  <p className="font-sans text-sm font-semibold text-brand-dark">Notificações</p>
+                  <p className="font-sans text-xs text-brand-muted">Devocional às 09:00</p>
+                </div>
               </div>
+              <PushNotificationButton />
             </div>
-            <button
-              onClick={toggleNotif}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                notif ? 'bg-brand-mustard' : 'bg-brand-ocre'
-              }`}
-            >
-              <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${
-                notif ? 'translate-x-6' : 'translate-x-1'
-              }`} />
-            </button>
           </li>
         </ul>
 

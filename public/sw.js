@@ -1,4 +1,4 @@
-const CACHE = 'cmdg-v1'
+const CACHE = 'cmdg-v2'
 const PRECACHE = ['/', '/arquivo', '/manifest.json']
 
 self.addEventListener('install', (e) => {
@@ -61,4 +61,32 @@ self.addEventListener('fetch', (e) => {
         .catch(() => caches.match(request))
     )
   }
+})
+
+self.addEventListener('push', (e) => {
+  const data = e.data?.json() ?? {}
+  e.waitUntil(
+    self.registration.showNotification(data.title || 'Café com Homens de Deus', {
+      body: data.body || 'Seu devocional de hoje está disponível!',
+      icon: data.icon || '/icons/icon-192x192.png',
+      badge: data.badge || '/icons/icon-72x72.png',
+      data: { url: data.url || '/' },
+    })
+  )
+})
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close()
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      const url = e.notification.data?.url || '/'
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          client.navigate(url)
+          return client.focus()
+        }
+      }
+      return clients.openWindow(url)
+    })
+  )
 })
