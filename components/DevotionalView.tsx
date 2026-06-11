@@ -110,11 +110,25 @@ export default function DevotionalView({ devotional: d }: { devotional: Devotion
         </cite>
       </blockquote>
 
+      {/* Player de Áudio */}
+      {d.audio_url && (
+        <div className="bg-white rounded-xl px-4 py-3 shadow-sm">
+          <p className="font-sans text-xs font-bold uppercase tracking-widest text-brand-mid mb-2">
+            🎧 Ouça o devocional
+          </p>
+          <audio
+            controls
+            src={d.audio_url}
+            className="w-full h-10"
+          />
+        </div>
+      )}
+
       {/* Análise e Reflexão */}
       {d.reflection && (
         <Section title="Análise e Reflexão">
           {d.reflection.split('\n\n').map((p, i) => (
-            <p key={i} className="font-serif text-sm text-brand-dark leading-relaxed mb-3 last:mb-0">
+            <p key={i} className="font-serif text-base text-brand-dark leading-relaxed mb-3 last:mb-0">
               {p}
             </p>
           ))}
@@ -125,7 +139,7 @@ export default function DevotionalView({ devotional: d }: { devotional: Devotion
       {d.practical_connection && (
         <Section title="Conexão Prática para os Homens de Deus">
           {d.practical_connection.split('\n\n').map((p, i) => (
-            <p key={i} className="font-serif text-sm text-brand-dark leading-relaxed mb-3 last:mb-0">
+            <p key={i} className="font-serif text-base text-brand-dark leading-relaxed mb-3 last:mb-0">
               {p}
             </p>
           ))}
@@ -151,7 +165,7 @@ export default function DevotionalView({ devotional: d }: { devotional: Devotion
                                  font-sans font-bold text-xs flex items-center justify-center mt-0.5">
                   {i + 1}
                 </span>
-                <p className="font-serif text-sm text-brand-dark leading-relaxed">{app}</p>
+                <p className="font-serif text-base text-brand-dark leading-relaxed">{app}</p>
               </li>
             ))}
           </ul>
@@ -162,7 +176,7 @@ export default function DevotionalView({ devotional: d }: { devotional: Devotion
       {d.final_message && (
         <Section title="Mensagem Final" accent>
           {d.final_message.split('\n\n').map((p, i) => (
-            <p key={i} className="font-serif text-sm text-brand-dark leading-relaxed mb-3 last:mb-0">
+            <p key={i} className="font-serif text-base text-brand-dark leading-relaxed mb-3 last:mb-0">
               {p}
             </p>
           ))}
@@ -173,10 +187,10 @@ export default function DevotionalView({ devotional: d }: { devotional: Devotion
       {(d.main_summary || d.daily_encouragement || d.daily_prayer) && (
         <Section title="Resumo do Dia">
           {d.main_summary && (
-            <p className="font-serif text-sm text-brand-dark leading-relaxed mb-4">{d.main_summary}</p>
+            <p className="font-serif text-base text-brand-dark leading-relaxed mb-4">{d.main_summary}</p>
           )}
           {d.daily_encouragement && (
-            <p className="font-sans text-sm font-semibold text-brand-mid mb-4">
+            <p className="font-sans text-base font-semibold text-brand-mid mb-4">
               🚀 {d.daily_encouragement}
             </p>
           )}
@@ -185,7 +199,7 @@ export default function DevotionalView({ devotional: d }: { devotional: Devotion
               <p className="font-sans text-xs font-bold uppercase tracking-wider text-brand-mid mb-2">
                 🙏 Oração
               </p>
-              <p className="font-serif text-sm italic text-brand-dark leading-relaxed">{d.daily_prayer}</p>
+              <p className="font-serif text-base italic text-brand-dark leading-relaxed">{d.daily_prayer}</p>
             </div>
           )}
         </Section>
