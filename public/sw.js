@@ -64,7 +64,8 @@ self.addEventListener('fetch', (e) => {
 })
 
 self.addEventListener('push', (e) => {
-  const data = e.data?.json() ?? {}
+  let data = {}
+  try { data = e.data?.json() ?? {} } catch { data = { body: e.data?.text() ?? '' } }
   e.waitUntil(
     self.registration.showNotification(data.title || 'Café com Homens de Deus', {
       body: data.body || 'Seu devocional de hoje está disponível!',
