@@ -61,6 +61,12 @@ export default function PushNotificationButton() {
         }
         setSubscribed(false)
       } else {
+        console.log('[Push] Solicitando permissão de notificação...')
+        const permission = await Notification.requestPermission()
+        if (permission !== 'granted') {
+          setError('Permissão negada. Verifique as configurações do navegador.')
+          return
+        }
         console.log('[Push] Solicitando permissão de push...')
         const sub = await reg.pushManager.subscribe({
           userVisibleOnly: true,
