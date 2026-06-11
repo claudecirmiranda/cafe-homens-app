@@ -31,31 +31,44 @@ export default function PushNotificationButton() {
 
   async function toggle() {
     const user = getUser()
-    if (!user) return
+    if (!user) {
+      setError('Faça login para ativar as notificações.')
+      return
+    }
+
+    if (!VAPID_PUBLIC_KEY) {
+      setError('Configuração de notificação ausente. Tente novamente mais tarde.')
+      console.error('[Push] NEXT_PUBLIC_VAPID_PUBLIC_KEY não definido')
+      return
+    }
 
     setLoading(true)
     setError(null)
     try {
       const reg = await navigator.serviceWorker.ready
+      console.log('[Push] Service worker pronto:', reg)
 
       if (subscribed) {
         const sub = await reg.pushManager.getSubscription()
         if (sub) {
           await sub.unsubscribe()
-          await fetch(`${PHP_API}/api/push/subscribe.php`, {
+          const res = await fetch(`${PHP_API}/api/push/subscribe.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
             body: JSON.stringify({ endpoint: sub.endpoint, action: 'unsubscribe' }),
           })
+          console.log('[Push] Unsubscribe PHP response:', res.status)
         }
         setSubscribed(false)
       } else {
+        console.log('[Push] Solicitando permissão de push...')
         const sub = await reg.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
         })
+        console.log('[Push] Subscription criada:', sub.endpoint)
         const json = sub.toJSON()
-        await fetch(`${PHP_API}/api/push/subscribe.php`, {
+        const res = await fetch(`${PHP_API}/api/push/subscribe.php`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
           body: JSON.stringify({
@@ -65,9 +78,11 @@ export default function PushNotificationButton() {
             action: 'subscribe',
           }),
         })
+        console.log('[Push] Subscribe PHP response:', res.status, await res.json())
         setSubscribed(true)
       }
     } catch (err: unknown) {
+      console.error('[Push] Erro:', err)
       if (err instanceof Error && err.name === 'NotAllowedError') {
         setError('Permissão negada. Verifique as configurações do navegador.')
       } else if (err instanceof Error && err.name === 'AbortError') {
