@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "br.com.cafecomhomensdedeus.app",
+        "sha256_cert_fingerprints": ["C9:C5:9A:50:E5:83:E1:B4:5E:15:A8:17:E3:F6:D4:65:90:76:D8:0E:37:54:0B:EE:73:10:0D:52:2A:8B:AE:87"]
+      }
+    }]
