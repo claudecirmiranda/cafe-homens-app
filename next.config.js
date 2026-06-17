@@ -5,6 +5,11 @@ const nextConfig = {
       { protocol: 'https', hostname: 'cafecomhomensdedeus.com.br' },
     ],
   },
+  experimental: {
+    staleTimes: {
+      dynamic: 0,
+    },
+  },
 }
 
 module.exports = nextConfig

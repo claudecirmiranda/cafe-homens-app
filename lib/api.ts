@@ -67,6 +67,7 @@ function authHeaders(token: string) {
 export async function getProgressStats(token: string): Promise<ProgressStats> {
   const res = await fetch(`${API}/api/progress/stats.php`, {
     headers: authHeaders(token),
+    cache: 'no-store',
   })
   if (!res.ok) throw new Error('Erro ao buscar progresso')
   return res.json()
@@ -83,6 +84,7 @@ export async function markDevotionalRead(token: string, devotionalId: number): P
 export async function getNote(token: string, devotionalId: number): Promise<DevotionalNote> {
   const res = await fetch(`${API}/api/notes/get.php?devotional_id=${devotionalId}`, {
     headers: authHeaders(token),
+    cache: 'no-store',
   })
   if (!res.ok) throw new Error('Erro ao buscar anotação')
   return res.json()
@@ -110,6 +112,7 @@ export async function toggleFavorite(token: string, devotionalId: number): Promi
 export async function getFavorites(token: string): Promise<FavoriteItem[]> {
   const res = await fetch(`${API}/api/favorites/list.php`, {
     headers: authHeaders(token),
+    cache: 'no-store',
   })
   if (!res.ok) throw new Error('Erro ao buscar favoritos')
   return res.json()
@@ -118,6 +121,7 @@ export async function getFavorites(token: string): Promise<FavoriteItem[]> {
 export async function getCalendar(token: string): Promise<string[]> {
   const res = await fetch(`${API}/api/progress/calendar.php`, {
     headers: authHeaders(token),
+    cache: 'no-store',
   })
   if (!res.ok) return []
   const data = await res.json()
@@ -127,6 +131,7 @@ export async function getCalendar(token: string): Promise<string[]> {
 export async function getStreak(token: string): Promise<Streak> {
   const res = await fetch(`${API}/api/progress/streak.php`, {
     headers: authHeaders(token),
+    cache: 'no-store',
   })
   if (!res.ok) throw new Error('Erro ao buscar streak')
   return res.json()
@@ -135,6 +140,7 @@ export async function getStreak(token: string): Promise<Streak> {
 export async function getAchievements(token: string): Promise<Achievement[]> {
   const res = await fetch(`${API}/api/achievements/list.php`, {
     headers: authHeaders(token),
+    cache: 'no-store',
   })
   if (!res.ok) throw new Error('Erro ao buscar conquistas')
   return res.json()
