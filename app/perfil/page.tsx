@@ -11,11 +11,27 @@ import type { User, ProgressStats, Streak } from '@/lib/types'
 import ReadingCalendar from '@/components/ReadingCalendar'
 import PushNotificationButton from '@/components/PushNotificationButton'
 
+function usePushHour() {
+  const [hour, setHour] = useState<number | null>(null)
+  useEffect(() => {
+    const v = localStorage.getItem('push_preferred_hour')
+    if (v) setHour(parseInt(v, 10))
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'push_preferred_hour') setHour(e.newValue ? parseInt(e.newValue, 10) : null)
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
+  return hour
+}
+
 export default function PerfilPage() {
   const router = useRouter()
   const [user,   setUser]   = useState<User | null>(null)
   const [stats,  setStats]  = useState<ProgressStats | null>(null)
   const [streak, setStreak] = useState<Streak | null>(null)
+
+  const pushHour = usePushHour()
 
   const fetchData = (token: string) => {
     getProgressStats(token).then(setStats).catch(() => {})
@@ -186,7 +202,9 @@ export default function PerfilPage() {
                 <span className="text-2xl">🔔</span>
                 <div>
                   <p className="font-sans text-sm font-semibold text-brand-dark">Notificações</p>
-                  <p className="font-sans text-xs text-brand-muted">Devocional às 09:00</p>
+                  <p className="font-sans text-xs text-brand-muted">
+                    {pushHour !== null ? `Devocional às ${pushHour}:00` : 'Devocional diário'}
+                  </p>
                 </div>
               </div>
               <PushNotificationButton />

@@ -15,8 +15,11 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
   }
 
-  // Busca subscriptions no backend PHP
-  const subsRes = await fetch(`${PHP_API}/api/push/list.php`, {
+  // Hora atual em BRT (UTC-3): determina quais subscribers recebem agora
+  const brtHour = (new Date().getUTCHours() + 21) % 24
+
+  // Busca subscriptions do horário atual no backend PHP
+  const subsRes = await fetch(`${PHP_API}/api/push/list.php?hour=${brtHour}`, {
     headers: { Authorization: `Bearer ${process.env.CRON_SECRET}` },
   })
   if (!subsRes.ok) {
