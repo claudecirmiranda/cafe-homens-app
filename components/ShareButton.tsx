@@ -3,21 +3,50 @@
 import { buildWhatsAppText } from '@/lib/utils'
 import type { Devotional } from '@/lib/types'
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://app.cafecomhomensdedeus.com.br'
+
+async function logoToPng(): Promise<File | null> {
+  try {
+    const res     = await fetch('/logo_nome.svg')
+    const svgText = await res.text()
+    const blob    = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' })
+    const objUrl  = URL.createObjectURL(blob)
+
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.onload = () => {
+        const w      = img.naturalWidth  || 400
+        const h      = img.naturalHeight || 150
+        const canvas = document.createElement('canvas')
+        canvas.width  = w * 2
+        canvas.height = h * 2
+        const ctx = canvas.getContext('2d')!
+        ctx.scale(2, 2)
+        ctx.drawImage(img, 0, 0)
+        URL.revokeObjectURL(objUrl)
+        canvas.toBlob(
+          (png) => resolve(png ? new File([png], 'cafe-homens-deus.png', { type: 'image/png' }) : null),
+          'image/png',
+        )
+      }
+      img.onerror = () => { URL.revokeObjectURL(objUrl); resolve(null) }
+      img.src = objUrl
+    })
+  } catch {
+    return null
+  }
+}
+
 export default function ShareButton({ devotional }: { devotional: Devotional }) {
   const handleShare = async () => {
-    const url  = `${window.location.origin}/devocional/${devotional.date}`
+    const url  = `${APP_URL}/devocional/${devotional.date}`
     const text = `☕ Café com Homens de Deus\n\n${devotional.weekly_theme}\n\n"${devotional.bible_text}"\n— ${devotional.bible_reference}\n\n`
 
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
-        // Tenta incluir a logo; se a plataforma não suportar o arquivo, compartilha só o texto
         let files: File[] | undefined
-        try {
-          const res  = await fetch('/logo_nome.svg')
-          const blob = await res.blob()
-          const file = new File([blob], 'cafe-homens-deus.svg', { type: 'image/svg+xml' })
-          if (navigator.canShare?.({ files: [file] })) files = [file]
-        } catch { /* logo indisponível — ignora */ }
+        const png = await logoToPng()
+        if (png && navigator.canShare?.({ files: [png] })) files = [png]
 
         await navigator.share({ title: 'Café com Homens de Deus', text, url, ...(files ? { files } : {}) })
         return

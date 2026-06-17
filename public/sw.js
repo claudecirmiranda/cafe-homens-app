@@ -1,4 +1,4 @@
-const CACHE = 'cmdg-v2'
+const CACHE = 'cmdg-v3'
 const PRECACHE = ['/', '/arquivo', '/manifest.json']
 
 self.addEventListener('install', (e) => {
