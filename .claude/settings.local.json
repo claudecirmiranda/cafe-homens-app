@@ -5,7 +5,8 @@
       "Bash(cp /mnt/d/work/cafe-homens-deus/public_html/assets/images/logo.svg /mnt/d/work/cafe-homens-deus/cafe-homens-app/public/logo.svg)",
       "Bash(npx --yes svgexport public/logo.svg public/icons/icon-192.png 192:192)",
       "Bash(npm install *)",
-      "Bash(node *)"
+      "Bash(node *)",
+      "Bash(npx tsc *)"
     ]
   }
 }

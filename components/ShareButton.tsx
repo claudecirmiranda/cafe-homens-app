@@ -4,15 +4,22 @@ import { buildWhatsAppText } from '@/lib/utils'
 import type { Devotional } from '@/lib/types'
 
 export default function ShareButton({ devotional }: { devotional: Devotional }) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
-
   const handleShare = async () => {
-    const url = `${appUrl}/devocional/${devotional.date}`
-    const text = `☕ Café com Homens de Deus\n\n${devotional.weekly_theme}\n\n"${devotional.bible_text}"\n— ${devotional.bible_reference}`
+    const url  = `${window.location.origin}/devocional/${devotional.date}`
+    const text = `☕ Café com Homens de Deus\n\n${devotional.weekly_theme}\n\n"${devotional.bible_text}"\n— ${devotional.bible_reference}\n\n`
 
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
-        await navigator.share({ title: 'Café com Homens de Deus', text, url })
+        // Tenta incluir a logo; se a plataforma não suportar o arquivo, compartilha só o texto
+        let files: File[] | undefined
+        try {
+          const res  = await fetch('/logo_nome.svg')
+          const blob = await res.blob()
+          const file = new File([blob], 'cafe-homens-deus.svg', { type: 'image/svg+xml' })
+          if (navigator.canShare?.({ files: [file] })) files = [file]
+        } catch { /* logo indisponível — ignora */ }
+
+        await navigator.share({ title: 'Café com Homens de Deus', text, url, ...(files ? { files } : {}) })
         return
       } catch {
         // usuário cancelou — fallback abaixo
