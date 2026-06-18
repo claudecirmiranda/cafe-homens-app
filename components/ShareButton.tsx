@@ -30,8 +30,7 @@ export default function ShareButton({ devotional }: { devotional: Devotional }) 
       `☕ Café com Homens de Deus\n\n` +
       `${devotional.weekly_theme}\n\n` +
       `_"${devotional.bible_text}"_\n` +
-      `— ${devotional.bible_reference}\n\n` +
-      `${url}`
+      `— ${devotional.bible_reference}\n\n`
 
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
