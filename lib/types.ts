@@ -13,6 +13,7 @@ export interface Devotional {
   bible_reference: string
   bible_text: string
   audio_url: string
+  share_image_url: string
   reflection: string
   practical_connection: string
   practical_question: string
