@@ -23,11 +23,15 @@ export default function ShareSheet({ devotional }: { devotional: Devotional }) {
 
   const url = `${APP_URL}/devocional/${devotional.date}`
 
+  const tema = (devotional.weekly_theme || '').trim()
+  const versiculo = (devotional.bible_text || '').trim()
+  const ref = (devotional.bible_reference || '').trim()
+
   const text =
     `☕ Café com Homens de Deus\n\n` +
-    `${devotional.weekly_theme}\n\n` +
-    `_"${devotional.bible_text}"_\n` +
-    `— ${devotional.bible_reference}\n\n` +
+    `*${tema}* \n\n` +
+    `_"${versiculo}"_\n` +
+    `- ${ref}\n\n` +
     `${url}`
 
   // Trava o scroll do fundo quando o sheet está aberto
