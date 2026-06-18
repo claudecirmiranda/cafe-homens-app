@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Achievement, Devotional } from '@/lib/types'
 import { formatDatePt } from '@/lib/utils'
-import ShareButton from './ShareButton'
+//import ShareButton from './ShareButton'
+import ShareSheet from './ShareSheet'
 import AchievementToast from './AchievementToast'
 import { getUser } from '@/lib/auth'
 import {
@@ -265,7 +266,7 @@ export default function DevotionalView({ devotional: d }: { devotional: Devotion
         ) : (
           <span />
         )}
-        <ShareButton devotional={d} />
+        <ShareSheet devotional={d} />
       </div>
 
     </article>
