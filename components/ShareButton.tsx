@@ -5,33 +5,17 @@ import type { Devotional } from '@/lib/types'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://app.cafecomhomensdedeus.com.br'
 
-async function logoToPng(): Promise<File | null> {
+/**
+ * Baixa a imagem de compartilhamento do devocional (gerada no servidor)
+ * e a transforma em File, para anexar via Web Share API.
+ * Requer que a pasta /share/ permita CORS para o subdomínio do app.
+ */
+async function devotionalImageToFile(shareImageUrl: string): Promise<File | null> {
   try {
-    const res     = await fetch('/logo_nome.svg')
-    const svgText = await res.text()
-    const blob    = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' })
-    const objUrl  = URL.createObjectURL(blob)
-
-    return new Promise((resolve) => {
-      const img = new Image()
-      img.onload = () => {
-        const w      = img.naturalWidth  || 400
-        const h      = img.naturalHeight || 150
-        const canvas = document.createElement('canvas')
-        canvas.width  = w * 2
-        canvas.height = h * 2
-        const ctx = canvas.getContext('2d')!
-        ctx.scale(2, 2)
-        ctx.drawImage(img, 0, 0)
-        URL.revokeObjectURL(objUrl)
-        canvas.toBlob(
-          (png) => resolve(png ? new File([png], 'cafe-homens-deus.png', { type: 'image/png' }) : null),
-          'image/png',
-        )
-      }
-      img.onerror = () => { URL.revokeObjectURL(objUrl); resolve(null) }
-      img.src = objUrl
-    })
+    const res = await fetch(shareImageUrl)
+    if (!res.ok) return null
+    const blob = await res.blob()
+    return new File([blob], 'devocional.png', { type: blob.type || 'image/png' })
   } catch {
     return null
   }
@@ -39,24 +23,46 @@ async function logoToPng(): Promise<File | null> {
 
 export default function ShareButton({ devotional }: { devotional: Devotional }) {
   const handleShare = async () => {
-    const url  = `${APP_URL}/devocional/${devotional.date}`
-    const text = `☕ Café com Homens de Deus\n\n${devotional.weekly_theme}\n\n"${devotional.bible_text}"\n— ${devotional.bible_reference}\n\n`
+    const url = `${APP_URL}/devocional/${devotional.date}`
+
+    // Texto enxuto: a imagem já mostra data e referência.
+    const text =
+      `☕ Café com Homens de Deus\n\n` +
+      `${devotional.weekly_theme}\n\n` +
+      `_"${devotional.bible_text}"_\n` +
+      `— ${devotional.bible_reference}\n\n` +
+      `${url}`
 
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
+        // Anexa a IMAGEM DO DEVOCIONAL (gerada no servidor), se possível.
         let files: File[] | undefined
-        const png = await logoToPng()
-        if (png && navigator.canShare?.({ files: [png] })) files = [png]
+        if (devotional.share_image_url) {
+          const png = await devotionalImageToFile(devotional.share_image_url)
+          if (png && navigator.canShare?.({ files: [png] })) {
+            files = [png]
+          }
+        }
 
-        await navigator.share({ title: 'Café com Homens de Deus', text, url, ...(files ? { files } : {}) })
+        await navigator.share({
+          title: 'Café com Homens de Deus',
+          text,
+          url,
+          ...(files ? { files } : {}),
+        })
         return
       } catch {
-        // usuário cancelou — fallback abaixo
+        // usuário cancelou ou falhou — cai no fallback abaixo
       }
     }
 
-    // Fallback: WhatsApp
-    const wa = `https://wa.me/?text=${buildWhatsAppText(devotional.weekly_theme, devotional.bible_text, devotional.bible_reference, url)}`
+    // Fallback: WhatsApp (texto + link; imagem aparece via preview og:image)
+    const wa = `https://wa.me/?text=${buildWhatsAppText(
+      devotional.weekly_theme,
+      devotional.bible_text,
+      devotional.bible_reference,
+      url,
+    )}`
     window.open(wa, '_blank', 'noopener')
   }
 
